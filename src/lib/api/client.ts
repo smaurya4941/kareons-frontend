@@ -16,6 +16,15 @@ export class ApiError extends Error {
     this.status = status;
     this.errors = body.errors;
   }
+
+  static [Symbol.hasInstance](instance: unknown): boolean {
+    return (
+      instance !== null &&
+      typeof instance === 'object' &&
+      'name' in instance &&
+      (instance as Error).name === 'ApiError'
+    );
+  }
 }
 
 export interface ApiFetchOptions extends Omit<RequestInit, 'body'> {

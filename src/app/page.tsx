@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { getHomeData } from '@/lib/api/home';
 import { getSettings } from '@/lib/api/settings';
@@ -9,6 +8,7 @@ import { Container } from '@/components/ui/Container';
 import { Icon } from '@/components/ui/Icon';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ProductCard } from '@/components/product/ProductCard';
+import { HeroSlideshow, type HeroSlide } from '@/components/home/HeroSlideshow';
 import { StarRating } from '@/components/ui/StarRating';
 import { formatDate } from '@/lib/utils/format';
 import type { ProductCard as ProductCardType } from '@/types/api';
@@ -54,9 +54,27 @@ export default async function HomePage() {
   const authed = Boolean(token);
   const wishlistIds = new Set(home.wishlist_ids);
 
-  const heroBanner = home.banners.find((b) => b.type === 'hero') ?? home.banners[0];
-  const heroDesktop = heroBanner?.desktop_image ?? settings.home.hero_bg;
-  const heroMobile = heroBanner?.mobile_image ?? heroDesktop;
+  // Every banner returned for the homepage becomes a hero slide, ordered by
+  // sort_order. If none are set, fall back to the single Settings hero image.
+  const heroSlides: HeroSlide[] = [...home.banners]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((b) => ({
+      desktop: b.desktop_image ?? settings.home.hero_bg ?? '',
+      mobile: b.mobile_image ?? b.desktop_image ?? settings.home.hero_bg ?? '',
+      link: b.link,
+      title: b.title,
+    }))
+    .filter((s) => s.desktop);
+
+  if (heroSlides.length === 0 && settings.home.hero_bg) {
+    heroSlides.push({
+      desktop: settings.home.hero_bg,
+      mobile: settings.home.hero_bg,
+      link: null,
+      title: null,
+    });
+  }
+
   const heroTitle = settings.home.hero_title ?? 'Scientific Ayurveda for <span class="text-brand-gold">Modern Wellness</span>';
   const heroSubtitle =
     settings.home.hero_subtitle ??
@@ -71,15 +89,7 @@ export default async function HomePage() {
     <div>
       {/* Hero */}
       <section className="relative flex min-h-[85vh] w-full items-center overflow-hidden bg-brand-forest">
-        {heroDesktop && (
-          <div className="absolute inset-0 z-0">
-            <picture>
-              {heroMobile && <source media="(max-width: 768px)" srcSet={heroMobile} />}
-              <img src={heroDesktop} alt="" className="h-full w-full object-cover" fetchPriority="high" />
-            </picture>
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-forest via-brand-forest/80 to-brand-forest/30" />
-          </div>
-        )}
+        <HeroSlideshow slides={heroSlides} />
         <Container className="relative z-10 py-12 lg:py-16">
           <div className="max-w-2xl">
             <div className="section-eyebrow mb-4 inline-flex items-center gap-2 rounded-full bg-brand-gold px-3.5 py-1 text-label-sm font-semibold uppercase text-brand-forest shadow-sm">

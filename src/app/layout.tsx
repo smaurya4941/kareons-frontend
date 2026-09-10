@@ -38,7 +38,13 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: settings.seo.meta_description ?? undefined,
     keywords: settings.seo.meta_keywords ?? undefined,
-    icons: settings.favicon ? { icon: settings.favicon } : undefined,
+    // The favicon is managed from the admin (Settings → Browser Favicon) and
+    // comes back as a Cloudinary URL. There is deliberately no app/favicon.ico
+    // in the repo — a static file there would always win over this and pin the
+    // Next.js default icon on the live site.
+    icons: settings.favicon
+      ? { icon: settings.favicon, shortcut: settings.favicon, apple: settings.favicon }
+      : undefined,
     verification: settings.seo.google_site_verification
       ? { google: settings.seo.google_site_verification }
       : undefined,

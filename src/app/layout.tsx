@@ -72,7 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
         <ToastProvider>
           <CountsProvider initial={counts}>
             <Header />
-            <main className="flex-1 pt-14">{children}</main>
+            <main className="flex-1 pt-[88px]">{children}</main>
             <Footer />
           </CountsProvider>
         </ToastProvider>

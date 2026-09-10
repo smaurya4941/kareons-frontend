@@ -33,6 +33,12 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-outline-variant bg-white/90 backdrop-blur-md">
+      <div className="flex h-8 w-full items-center justify-center gap-2 bg-brand-forest px-margin-mobile text-center text-xs font-medium text-brand-cream md:px-margin-desktop">
+        <span className="rounded-full bg-brand-gold px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-forest">
+          Available Soon
+        </span>
+        <span className="truncate">Online ordering is launching shortly — explore our range in the meantime.</span>
+      </div>
       <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-margin-mobile md:px-margin-desktop">
         <Link href="/" className="flex items-center">
           {logo ? (
@@ -123,7 +129,7 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
       </div>
 
       {mobileOpen && (
-        <div className="absolute left-0 top-14 h-[calc(100vh-56px)] w-full overflow-y-auto border-t border-outline-variant bg-white shadow-lg md:hidden">
+        <div className="absolute left-0 top-[88px] h-[calc(100vh-88px)] w-full overflow-y-auto border-t border-outline-variant bg-white shadow-lg md:hidden">
           <div className="flex flex-col px-margin-mobile py-4">
             {NAV.map((item) => (
               <Link

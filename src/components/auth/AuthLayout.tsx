@@ -14,7 +14,7 @@ export async function AuthLayout({
   const settings = await getSettings();
 
   return (
-    <div className="relative flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center overflow-hidden p-4">
+    <div className="relative flex min-h-[calc(100vh-5.5rem)] flex-col items-center justify-center overflow-hidden p-4">
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-40">
         <div className="absolute right-[-5%] top-[-10%] h-[50vw] w-[50vw] rounded-full bg-herbal-light blur-[120px]" />
         <div className="absolute bottom-[-20%] left-[-10%] h-[60vw] w-[60vw] rounded-full bg-secondary-fixed/40 blur-[100px]" />

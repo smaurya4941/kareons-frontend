@@ -1,8 +1,19 @@
-import { authedFetch } from './server';
+import { authedFetch, optionalAuthedFetch } from './server';
 import type { AddToCartResponse, ApiResource, Cart, CartItem } from '@/types/api';
 
-/** All cart routes require auth — there is no guest cart (see docs/API.md). */
-export async function getCart(): Promise<Cart> {
+/**
+ * All cart routes require auth — there is no guest cart (see docs/API.md).
+ * Pass `{ optional: true }` when reading the cart on a page that also renders
+ * for guests (the header count): a missing/expired session returns null
+ * instead of redirecting the whole page to /login.
+ */
+export async function getCart(): Promise<Cart>;
+export async function getCart(opts: { optional: true }): Promise<Cart | null>;
+export async function getCart(opts?: { optional?: boolean }): Promise<Cart | null> {
+  if (opts?.optional) {
+    const res = await optionalAuthedFetch<ApiResource<Cart>>('/cart', { cache: 'no-store' });
+    return res?.data ?? null;
+  }
   const { data } = await authedFetch<ApiResource<Cart>>('/cart', { cache: 'no-store' });
   return data;
 }

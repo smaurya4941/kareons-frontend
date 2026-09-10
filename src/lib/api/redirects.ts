@@ -16,9 +16,12 @@ export async function lookupRedirect(path: string): Promise<RedirectLookup | nul
     });
     return data;
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      return null;
-    }
-    throw error;
+    // 404 = no redirect seeded for this path (the common case). Any other
+    // failure (rate limit, API down, network) must not turn a plain 404 page
+    // into a 500 — treat it as "no redirect" and let the caller render its
+    // not-found UI. This path is hit constantly by scanner traffic.
+    if (error instanceof ApiError && error.status === 404) return null;
+    console.error(`[redirects] lookup failed for ${path}:`, error);
+    return null;
   }
 }

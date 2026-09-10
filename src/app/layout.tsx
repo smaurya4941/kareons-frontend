@@ -48,10 +48,10 @@ export async function generateMetadata(): Promise<Metadata> {
 async function getInitialCounts(): Promise<{ cart: number; wishlist: number }> {
   if (!(await getSessionToken())) return { cart: 0, wishlist: 0 };
   const [cart, wishlist] = await Promise.all([
-    getCart().catch(() => null),
-    getWishlist().catch(() => null),
+    getCart({ optional: true }).catch(() => null),
+    getWishlist({ optional: true }).catch(() => []),
   ]);
-  return { cart: cart?.cart_count ?? 0, wishlist: wishlist?.length ?? 0 };
+  return { cart: cart?.cart_count ?? 0, wishlist: wishlist.length };
 }
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {

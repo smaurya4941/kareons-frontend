@@ -6,6 +6,15 @@ if (!API_BASE_URL) {
   throw new Error('NEXT_PUBLIC_API_URL is not set. Check .env.local.');
 }
 
+/**
+ * Shared secret identifying this app as the trusted first-party frontend, so
+ * the API doesn't rate-limit all of our server-side traffic as one abusive
+ * IP. Server-only (never `NEXT_PUBLIC_`) — in the browser bundle this is
+ * `undefined`, so the header is simply omitted and those requests fall under
+ * the public per-IP limit, which is correct for a real user's browser.
+ */
+const FRONTEND_API_KEY = process.env.API_INTERNAL_KEY;
+
 export class ApiError extends Error {
   readonly status: number;
   readonly errors?: Record<string, string[]>;
@@ -84,6 +93,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
         Accept: 'application/json',
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(FRONTEND_API_KEY ? { 'X-Frontend-Key': FRONTEND_API_KEY } : {}),
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,

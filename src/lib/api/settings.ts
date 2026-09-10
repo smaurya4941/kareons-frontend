@@ -8,7 +8,7 @@ import type { ApiResource, Settings } from '@/types/api';
  */
 export async function getSettings(): Promise<Settings> {
   const { data } = await apiFetch<ApiResource<Settings>>('/settings', {
-    next: { revalidate: 3600, tags: ['settings'] },
+    cache: 'no-store',
   });
   return data;
 }

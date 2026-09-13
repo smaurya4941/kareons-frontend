@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductCard as ProductCardType } from '@/types/api';
 import { Icon } from '@/components/ui/Icon';
+import { Badge } from '@/components/ui/Badge';
 import { Price } from '@/components/ui/Price';
 import { StarRating } from '@/components/ui/StarRating';
 import { WishlistButton } from './WishlistButton';
@@ -30,14 +31,15 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-xl border border-brand-beige bg-white shadow-sm',
-        'card-lift',
+        'group relative flex h-full flex-col overflow-hidden rounded-xl border border-border-card bg-surface-card shadow-botanical-sm transition-all duration-300 hover:border-brand-gold/40 hover:shadow-botanical-md',
       )}
     >
       {product.on_sale && (
-        <span className="absolute left-3 top-3 z-10 rounded bg-white/90 px-2 py-1 text-[10px] font-bold text-error backdrop-blur-sm">
-          SALE
-        </span>
+        <div className="absolute left-3 top-3 z-10">
+          <Badge variant="error" size="sm" className="font-bold tracking-wider">
+            SALE
+          </Badge>
+        </div>
       )}
 
       <div className="absolute right-3 top-3 z-20">
@@ -54,17 +56,18 @@ export function ProductCard({
         )}
       </div>
 
-      <Link href={href} className="block aspect-square overflow-hidden bg-brand-cream">
+      <Link href={href} className="block aspect-square overflow-hidden bg-brand-cream/40">
         {product.main_image ? (
           <Image
             src={product.main_image}
             alt={product.name}
             width={480}
             height={480}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(min-width: 1280px) 300px, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-brand-beige text-brand-sage">
+          <div className="flex h-full w-full items-center justify-center bg-brand-cream/40 text-brand-sage">
             <Icon name="image" size={48} />
           </div>
         )}
@@ -85,7 +88,7 @@ export function ProductCard({
           <StarRating rating={product.rating_avg} count={product.reviews_count} />
         </div>
 
-        <div className="mt-auto flex items-center justify-between border-t border-brand-beige pt-3 transition-colors group-hover:border-brand-gold/30">
+        <div className="mt-auto flex items-center justify-between border-t border-border-card pt-3 transition-colors group-hover:border-brand-gold/30">
           <Price price={product.price} salePrice={product.sale_price} />
           <QuickAddButton
             productId={product.id}

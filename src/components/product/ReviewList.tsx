@@ -6,6 +6,7 @@ import { submitReviewAction } from '@/lib/actions/reviews';
 import { useToast } from '@/components/ui/Toast';
 import { Icon } from '@/components/ui/Icon';
 import { StarRating } from '@/components/ui/StarRating';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDate } from '@/lib/utils/format';
 import type { Review } from '@/types/api';
 
@@ -42,11 +43,11 @@ export function ReviewList({
 
         <div className="space-y-6 md:w-2/3">
           {reviews.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-soft-border bg-surface py-12 text-center">
-              <Icon name="rate_review" size={48} className="mb-4 text-outline" />
-              <h3 className="mb-2 text-xl font-bold text-on-surface">No Reviews Yet</h3>
-              <p className="text-on-surface-variant">Be the first to share your experience with this formulation!</p>
-            </div>
+            <EmptyState
+              icon="rate_review"
+              title="No Reviews Yet"
+              description="Be the first to share your experience with this formulation!"
+            />
           ) : (
             reviews.map((review) => (
               <div

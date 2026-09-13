@@ -1,20 +1,22 @@
-import { cn } from '@/lib/utils/cn';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import type { OrderStatus } from '@/types/api';
 
-const STYLES: Record<OrderStatus, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  packed: 'bg-indigo-100 text-indigo-800',
-  shipped: 'bg-cyan-100 text-cyan-800',
-  delivered: 'bg-emerald-100 text-emerald-800',
-  returned: 'bg-orange-100 text-orange-800',
-  cancelled: 'bg-red-100 text-red-800',
+const STATUS_VARIANT: Record<OrderStatus, BadgeVariant> = {
+  pending: 'warning',
+  confirmed: 'info',
+  packed: 'info',
+  shipped: 'info',
+  delivered: 'success',
+  returned: 'warning',
+  cancelled: 'error',
 };
 
-export function OrderStatusBadge({ status }: { status: OrderStatus }) {
+export function OrderStatusBadge({ status, className }: { status: OrderStatus; className?: string }) {
+  const variant = STATUS_VARIANT[status] ?? 'neutral';
+
   return (
-    <span className={cn('rounded-full px-3 py-1 text-xs font-semibold capitalize', STYLES[status] ?? 'bg-gray-100 text-gray-700')}>
-      {status}
-    </span>
+    <Badge variant={variant} size="md" className={className}>
+      <span className="capitalize">{status}</span>
+    </Badge>
   );
 }

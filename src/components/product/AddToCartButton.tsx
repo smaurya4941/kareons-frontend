@@ -5,9 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { addToCartAction } from '@/lib/actions/cart';
 import { useToast } from '@/components/ui/Toast';
 import { useCounts } from '@/components/layout/CountsProvider';
+import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
-import { cn } from '@/lib/utils/cn';
 
 interface Props {
   productId: number;
@@ -55,27 +55,27 @@ export function AddToCartButton({ productId, inStock, stockQuantity, isAuthentic
     <div className="flex flex-col gap-3 sm:flex-row">
       <QuantityStepper value={quantity} onChange={setQuantity} min={1} max={max} disabled={!inStock} />
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => add()}
         disabled={!inStock || isPending}
-        className={cn(
-          'btn-squish flex flex-1 items-center justify-center gap-2 rounded-lg border border-brand-forest px-5 py-2.5 text-sm font-medium text-brand-forest shadow-sm transition-colors hover:bg-brand-forest hover:text-white disabled:opacity-50',
-        )}
+        className="flex-1"
       >
         <Icon name="shopping_bag" size={20} fill />
         {isPending ? 'Adding…' : inStock ? 'Add to Cart' : 'Out of Stock'}
-      </button>
+      </Button>
 
-      <button
+      <Button
         type="button"
+        variant="primary"
         onClick={() => add('checkout')}
         disabled={!inStock || isPending}
-        className="btn-squish flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-forest px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-forest/90 disabled:opacity-50"
+        className="flex-1"
       >
         <Icon name="bolt" size={20} fill />
         Buy Now
-      </button>
+      </Button>
     </div>
   );
 }

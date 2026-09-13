@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getProducts, type ProductSort } from '@/lib/api/products';
 import { getSettings } from '@/lib/api/settings';
 import { getSessionToken } from '@/lib/auth/session';
@@ -10,6 +11,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { Container } from '@/components/ui/Container';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Icon } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ShopFilters, SortSelect } from '@/components/product/ShopFilters';
 import { Pagination } from '@/components/ui/Pagination';
@@ -91,6 +93,18 @@ export default async function ShopPage({ searchParams }: Props) {
   const to = meta?.to ?? 0;
   const total = meta?.total ?? products.length;
 
+  function removeFilterParam(keys: string | string[]) {
+    const next = new URLSearchParams();
+    const keySet = new Set(Array.isArray(keys) ? keys : [keys]);
+    for (const [k, v] of Object.entries(params)) {
+      if (v && !keySet.has(k) && k !== 'page') {
+        next.set(k, v);
+      }
+    }
+    const qs = next.toString();
+    return qs ? `/shop?${qs}` : '/shop';
+  }
+
   return (
     <Container className="py-6 md:py-8">
       <JsonLd
@@ -141,12 +155,54 @@ export default async function ShopPage({ searchParams }: Props) {
         <ShopFilters categories={categories} activeParams={params} />
 
         <div className="w-full flex-1">
-          <div className="mb-5 flex flex-col items-start justify-between gap-3 border-b border-soft-border pb-3 sm:flex-row sm:items-center">
-            <span className="text-sm text-on-surface-variant">
-              Showing {from}-{to} of {total} products
+          <div className="mb-5 flex flex-col items-start justify-between gap-3 border-b border-border-subtle pb-4 sm:flex-row sm:items-center">
+            <span className="text-sm font-medium text-on-surface-variant">
+              Showing <span className="font-semibold text-on-surface">{from}-{to}</span> of <span className="font-semibold text-on-surface">{total}</span> formulations
             </span>
             <SortSelect activeParams={params} />
           </div>
+
+          {/* Active Filter Chips */}
+          {(params.search || params.category || params.min_price || params.max_price) && (
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-gold-dark">
+                Active:
+              </span>
+              {params.search && (
+                <Link
+                  href={removeFilterParam('search')}
+                  className="inline-flex items-center gap-1 rounded-full border border-border-card bg-surface-card px-3 py-1 text-xs font-medium text-on-surface shadow-botanical-sm hover:border-error/40 transition-colors"
+                >
+                  <span>Search: &ldquo;{params.search}&rdquo;</span>
+                  <Icon name="close" size={14} className="text-on-surface-variant" />
+                </Link>
+              )}
+              {activeCategory && (
+                <Link
+                  href={removeFilterParam('category')}
+                  className="inline-flex items-center gap-1 rounded-full border border-brand-gold/30 bg-brand-gold/10 px-3 py-1 text-xs font-medium text-brand-gold-dark shadow-botanical-sm hover:border-error/40 transition-colors"
+                >
+                  <span>{activeCategory.name}</span>
+                  <Icon name="close" size={14} />
+                </Link>
+              )}
+              {(params.min_price || params.max_price) && (
+                <Link
+                  href={removeFilterParam(['min_price', 'max_price'])}
+                  className="inline-flex items-center gap-1 rounded-full border border-border-card bg-surface-card px-3 py-1 text-xs font-medium text-on-surface shadow-botanical-sm hover:border-error/40 transition-colors"
+                >
+                  <span>₹{params.min_price || '0'} – ₹{params.max_price || '∞'}</span>
+                  <Icon name="close" size={14} className="text-on-surface-variant" />
+                </Link>
+              )}
+              <Link
+                href="/shop"
+                className="text-xs font-semibold text-error hover:underline ml-1"
+              >
+                Clear all
+              </Link>
+            </div>
+          )}
 
           {products.length === 0 ? (
             <EmptyState

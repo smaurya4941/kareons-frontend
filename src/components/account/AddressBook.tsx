@@ -9,11 +9,11 @@ import {
 } from '@/lib/actions/addresses';
 import { useToast } from '@/components/ui/Toast';
 import { Icon } from '@/components/ui/Icon';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils/cn';
 import type { Address } from '@/types/api';
 import type { AddressPayload } from '@/lib/api/addresses';
-
-const inputClass =
-  'w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-sm outline-none focus:border-primary';
 
 type FormState = 'closed' | 'new' | number; // number = editing that address id
 
@@ -51,7 +51,7 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {addresses.map((address) =>
           form === address.id ? (
@@ -63,36 +63,52 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
               onSubmit={(payload) => submit(payload, address.id)}
             />
           ) : (
-            <div key={address.id} className="rounded-xl border border-outline-variant bg-surface p-4 text-sm shadow-sm">
-              <div className="mb-2 flex items-center justify-between">
-                <strong className="text-on-surface">{address.full_name}</strong>
-                {address.is_default && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                    Default
-                  </span>
-                )}
+            <div
+              key={address.id}
+              className={cn(
+                'group relative flex flex-col justify-between rounded-2xl border bg-surface-card p-5 text-sm shadow-botanical-sm transition-all',
+                address.is_default
+                  ? 'border-brand-gold/50 bg-gradient-to-br from-surface-card to-herbal-light/30'
+                  : 'border-border-card hover:border-brand-gold/40',
+              )}
+            >
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest/10 text-brand-forest">
+                      <Icon name="home" size={16} />
+                    </span>
+                    <strong className="font-semibold text-on-surface">{address.full_name}</strong>
+                  </div>
+                  {address.is_default && (
+                    <Badge variant="brand" size="sm">
+                      Default
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-on-surface-variant leading-relaxed">
+                  {address.address_line_1}
+                  {address.address_line_2 ? `, ${address.address_line_2}` : ''}
+                  <br />
+                  {address.city}, {address.state} — {address.postal_code}
+                  <br />
+                  <span className="font-medium text-on-surface">Phone:</span> {address.phone}
+                </p>
               </div>
-              <p className="text-on-surface-variant">
-                {address.address_line_1}
-                {address.address_line_2 ? `, ${address.address_line_2}` : ''}
-                <br />
-                {address.city}, {address.state} {address.postal_code}
-                <br />
-                {address.phone}
-              </p>
-              <div className="mt-3 flex gap-3">
+              <div className="mt-4 flex items-center gap-3 border-t border-border-subtle pt-3">
                 <button
                   type="button"
                   onClick={() => setForm(address.id)}
-                  className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-brand-forest hover:text-brand-forest/80 hover:underline"
                 >
                   <Icon name="edit" size={15} /> Edit
                 </button>
+                <span className="text-border-subtle">·</span>
                 <button
                   type="button"
                   onClick={() => remove(address.id)}
                   disabled={isPending}
-                  className="flex items-center gap-1 text-xs font-medium text-error hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-error hover:underline disabled:opacity-50"
                 >
                   <Icon name="delete" size={15} /> Delete
                 </button>
@@ -110,9 +126,9 @@ export function AddressBook({ addresses }: { addresses: Address[] }) {
         <button
           type="button"
           onClick={() => setForm('new')}
-          className="btn-squish inline-flex items-center gap-2 rounded-lg border border-brand-forest px-4 py-2 text-sm font-medium text-brand-forest hover:bg-brand-forest hover:text-white"
+          className="btn-squish inline-flex items-center gap-2 rounded-xl border border-brand-forest bg-brand-forest/5 px-5 py-2.5 text-sm font-semibold text-brand-forest hover:bg-brand-forest hover:text-white transition-all shadow-botanical-sm"
         >
-          <Icon name="add" size={18} /> Add New Address
+          <Icon name="add_circle" size={18} /> Add New Address
         </button>
       )}
     </div>
@@ -132,7 +148,7 @@ function AddressForm({
 }) {
   return (
     <form
-      className="col-span-full grid grid-cols-1 gap-3 rounded-xl border border-outline-variant bg-surface p-4 shadow-sm sm:grid-cols-2"
+      className="col-span-full grid grid-cols-1 gap-4 rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-md sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
@@ -148,39 +164,47 @@ function AddressForm({
         });
       }}
     >
-      <input name="full_name" required placeholder="Full name" defaultValue={address?.full_name} className={inputClass} />
-      <input name="phone" required placeholder="Phone" defaultValue={address?.phone} className={inputClass} />
-      <input
+      <div className="col-span-full border-b border-border-subtle pb-2">
+        <h3 className="font-display text-base font-bold text-brand-forest">
+          {address ? 'Edit Address' : 'Add New Delivery Address'}
+        </h3>
+      </div>
+      <Input label="Full Name" name="full_name" required defaultValue={address?.full_name} />
+      <Input label="Phone" name="phone" type="tel" required defaultValue={address?.phone} />
+      <Input
+        label="Address Line 1"
         name="address_line_1"
         required
-        placeholder="Address line 1"
         defaultValue={address?.address_line_1}
-        className={`${inputClass} sm:col-span-2`}
+        containerClassName="sm:col-span-2"
       />
-      <input
+      <Input
+        label="Address Line 2 (Optional)"
         name="address_line_2"
-        placeholder="Address line 2 (optional)"
         defaultValue={address?.address_line_2 ?? ''}
-        className={`${inputClass} sm:col-span-2`}
+        containerClassName="sm:col-span-2"
       />
-      <input name="city" required placeholder="City" defaultValue={address?.city} className={inputClass} />
-      <input name="state" required placeholder="State" defaultValue={address?.state} className={inputClass} />
-      <input
+      <Input label="City" name="city" required defaultValue={address?.city} />
+      <Input label="State" name="state" required defaultValue={address?.state} />
+      <Input
+        label="PIN Code"
         name="postal_code"
         required
-        placeholder="PIN code"
         defaultValue={address?.postal_code}
-        className={inputClass}
       />
-      <label className="flex items-center gap-2 text-sm text-on-surface-variant sm:col-span-2">
-        <input type="checkbox" name="is_default" defaultChecked={address?.is_default} className="accent-primary" />
-        Set as default address
+      <label className="flex items-center gap-2 text-sm text-on-surface-variant sm:col-span-2 cursor-pointer select-none">
+        <input type="checkbox" name="is_default" defaultChecked={address?.is_default} className="h-4 w-4 rounded accent-brand-forest" />
+        Set as default delivery address
       </label>
-      <div className="flex gap-2 sm:col-span-2">
+      <div className="flex gap-3 sm:col-span-2 pt-2">
         <button type="submit" disabled={pending} className="btn-primary disabled:opacity-60">
           {pending ? 'Saving…' : 'Save Address'}
         </button>
-        <button type="button" onClick={onCancel} className="rounded-lg border border-outline-variant px-4 py-2 text-sm">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-xl border border-border-subtle bg-surface-subtle px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-subtle/80"
+        >
           Cancel
         </button>
       </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getBlogPosts } from '@/lib/api/blog';
 import { getSettings } from '@/lib/api/settings';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -68,10 +69,12 @@ export default async function BlogIndexPage({ searchParams }: Props) {
               >
                 <Link href={`/blog/${post.slug}`} className="relative block aspect-[16/10] overflow-hidden bg-surface-container">
                   {post.featured_image ? (
-                    <img
+                    <Image
                       src={post.featured_image}
                       alt={post.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-outline">

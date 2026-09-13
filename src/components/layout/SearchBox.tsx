@@ -35,10 +35,7 @@ export function SearchBox() {
   }, [open]);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
+    if (query.trim().length < 2) return;
     const q = query.trim();
     const t = setTimeout(async () => {
       setLoading(true);
@@ -55,15 +52,17 @@ export function SearchBox() {
     return () => clearTimeout(t);
   }, [query]);
 
+  const displayResults = query.trim().length < 2 ? [] : results;
+
   function goToShop() {
     setOpen(false);
     router.push(`/shop?search=${encodeURIComponent(query.trim())}`);
   }
 
   function onEnter() {
-    if (highlight >= 0 && results[highlight]) {
+    if (highlight >= 0 && displayResults[highlight]) {
       setOpen(false);
-      router.push(`/product/${results[highlight].slug}`);
+      router.push(`/product/${displayResults[highlight].slug}`);
     } else if (query.trim().length >= 2) {
       goToShop();
     }
@@ -95,7 +94,7 @@ export function SearchBox() {
               onKeyDown={(e) => {
                 if (e.key === 'ArrowDown') {
                   e.preventDefault();
-                  setHighlight((h) => Math.min(results.length - 1, h + 1));
+                  setHighlight((h) => Math.min(displayResults.length - 1, h + 1));
                 } else if (e.key === 'ArrowUp') {
                   e.preventDefault();
                   setHighlight((h) => Math.max(-1, h - 1));
@@ -120,13 +119,13 @@ export function SearchBox() {
 
           {query.trim().length >= 2 && (
             <div className="absolute right-0 mt-2 w-[78vw] max-w-sm overflow-hidden rounded-xl border border-outline-variant bg-white shadow-xl md:w-80">
-              {loading && results.length === 0 ? (
+              {loading && displayResults.length === 0 ? (
                 <p className="px-4 py-3 text-sm text-on-surface-variant">Searching…</p>
-              ) : results.length === 0 ? (
+              ) : displayResults.length === 0 ? (
                 <p className="px-4 py-3 text-sm text-on-surface-variant">No matches. Press Enter to search all.</p>
               ) : (
                 <ul className="max-h-96 overflow-y-auto py-1">
-                  {results.map((r, i) => (
+                  {displayResults.map((r, i) => (
                     <li key={r.id}>
                       <button
                         type="button"

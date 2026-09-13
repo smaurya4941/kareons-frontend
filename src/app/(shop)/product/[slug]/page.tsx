@@ -10,6 +10,7 @@ import { redirectOrNotFound } from '@/lib/seo/redirectOrNotFound';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Container } from '@/components/ui/Container';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { StarRating } from '@/components/ui/StarRating';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -18,6 +19,8 @@ import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { WishlistButton } from '@/components/product/WishlistButton';
 import { ProductSpecTabs } from '@/components/product/ProductSpecTabs';
 import { ReviewList } from '@/components/product/ReviewList';
+import { StickyAddToCart } from '@/components/product/StickyAddToCart';
+import { TrustBadge } from '@/components/ui/TrustBadge';
 import { formatMoney, discountPercent } from '@/lib/utils/format';
 
 interface Props {
@@ -52,7 +55,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const [{ product, relatedProducts }, token] = await Promise.all([loadProduct(slug), getSessionToken()]);
+  const [{ product, relatedProducts }, token, settings] = await Promise.all([
+    loadProduct(slug),
+    getSessionToken(),
+    getSettings(),
+  ]);
   const authed = Boolean(token);
 
   const onSale = product.on_sale;
@@ -94,12 +101,12 @@ export default async function ProductPage({ params }: Props) {
 
         <div className="flex flex-col justify-start py-2 md:col-span-7">
           <div className="mb-3 flex gap-2">
-            <span className="rounded border border-brand-gold-dark/20 bg-herbal-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-gold-dark">
+            <Badge variant="gold" size="sm">
               Ayurvedic
-            </span>
-            <span className="rounded border border-secondary/20 bg-secondary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-secondary">
+            </Badge>
+            <Badge variant="brand" size="sm">
               GMP Certified
-            </span>
+            </Badge>
           </div>
 
           <h1 className="mb-2 font-display text-2xl font-bold leading-tight text-on-surface">{product.name}</h1>
@@ -148,23 +155,23 @@ export default async function ProductPage({ params }: Props) {
             )}
           </div>
 
-          <div className="mb-5 rounded-xl border border-soft-border bg-white p-5 shadow-sm">
-            <div className="mb-4 flex items-center gap-2 text-xs font-medium">
+          <div id="main-buy-box" className="mb-5 rounded-2xl border border-border-card bg-surface-card p-5 shadow-botanical-sm md:p-6">
+            <div className="mb-4">
               {product.stock_quantity > 10 ? (
-                <>
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-emerald-700">In Stock &amp; Ready to Ship</span>
-                </>
+                <Badge variant="success" size="sm">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-success" />
+                  In Stock &amp; Ready to Ship
+                </Badge>
               ) : product.stock_quantity > 0 ? (
-                <>
-                  <span className="h-2 w-2 rounded-full bg-amber-500" />
-                  <span className="text-amber-700">Limited Stock (Only {product.stock_quantity} left)</span>
-                </>
+                <Badge variant="warning" size="sm">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-warning" />
+                  Limited Stock (Only {product.stock_quantity} left)
+                </Badge>
               ) : (
-                <>
-                  <span className="h-2 w-2 rounded-full bg-error" />
-                  <span className="text-error">Out of Stock</span>
-                </>
+                <Badge variant="error" size="sm">
+                  <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-error" />
+                  Out of Stock
+                </Badge>
               )}
             </div>
 
@@ -186,15 +193,18 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="flex items-center gap-5 border-t border-soft-border pt-5 text-xs text-on-surface-variant">
-            <div className="flex items-center gap-1.5">
-              <Icon name="local_shipping" size={18} className="text-brand-gold-dark" />
-              <span>Free shipping over ₹500</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Icon name="verified" size={18} className="text-brand-gold-dark" />
-              <span>100% Authentic</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-3 border-t border-border-card pt-5">
+            <TrustBadge
+              icon="local_shipping"
+              label={
+                settings.free_shipping_amount > 0
+                  ? `Free shipping over ₹${settings.free_shipping_amount}`
+                  : 'Fast Delivery'
+              }
+              size="sm"
+            />
+            <TrustBadge icon="verified" label="100% Authentic Formulation" size="sm" />
+            <TrustBadge icon="eco" label="Direct From Apothecary" size="sm" />
           </div>
         </div>
       </section>
@@ -207,6 +217,14 @@ export default async function ProductPage({ params }: Props) {
         reviewsCount={product.reviews_count}
         productId={product.id}
         productSlug={product.slug}
+        isAuthenticated={authed}
+      />
+
+      <StickyAddToCart
+        productId={product.id}
+        productName={product.name}
+        price={product.effective_price}
+        inStock={product.in_stock}
         isAuthenticated={authed}
       />
 

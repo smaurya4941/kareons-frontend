@@ -65,8 +65,39 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #93000a;
 
+  --color-success: #1b6c3e;
+  --color-success-container: #d4f0dc;
+  --color-on-success: #ffffff;
+  --color-on-success-container: #0b3d20;
+
+  --color-warning: #9e5b08;
+  --color-warning-container: #fef0cd;
+  --color-on-warning: #ffffff;
+  --color-on-warning-container: #542f02;
+
+  --color-info: #0f6280;
+  --color-info-container: #d6f2fa;
+  --color-on-info: #ffffff;
+  --color-on-info-container: #053344;
+
   --color-inverse-surface: #303032;
   --color-inverse-on-surface: #f3f0f2;
+
+  /* ---- Refined Surface & Border Tokens ---- */
+  --color-surface-card: #ffffff;
+  --color-surface-subtle: #fbf9f6;
+  --color-border-card: #ebe6df;
+  --color-border-subtle: #f0ece6;
+  --color-border-gold-subtle: rgba(201, 164, 82, 0.25);
+
+  /* ---- Refined Botanical Shadow Tokens ---- */
+  --shadow-botanical-sm: 0 2px 8px -2px rgba(30, 58, 51, 0.05);
+  --shadow-botanical-md: 0 8px 24px -4px rgba(30, 58, 51, 0.07);
+  --shadow-botanical-lg: 0 16px 36px -6px rgba(30, 58, 51, 0.10);
+  --shadow-gold-glow: 0 0 20px -2px rgba(201, 164, 82, 0.35);
+
+  /* ---- Transition Curves ---- */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* ---- Spacing (named, from the Blade theme) ---- */
   --spacing-gutter: 18px;

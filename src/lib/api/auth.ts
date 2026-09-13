@@ -1,6 +1,6 @@
 import { apiFetch } from './client';
 import { authedFetch } from './server';
-import type { ApiResource, AuthResponse, User } from '@/types/api';
+import type { ApiResource, AuthResponse } from '@/types/api';
 
 export interface RegisterPayload {
   name: string;

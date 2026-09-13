@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils/cn';
 
-interface IconProps {
+export interface IconProps {
   /** Material Symbols Outlined ligature name, e.g. "shopping_cart". */
   name: string;
   /** Font-size in px (drives the glyph size). */
@@ -14,9 +14,13 @@ interface IconProps {
 }
 
 export function Icon({ name, size = 24, fill = false, weight = 300, className, ...rest }: IconProps) {
+  const isHidden = rest['aria-label'] ? undefined : (rest['aria-hidden'] ?? true);
+  const role = rest['aria-label'] ? 'img' : undefined;
+
   return (
     <span
-      aria-hidden={rest['aria-label'] ? undefined : true}
+      role={role}
+      aria-hidden={isHidden}
       {...rest}
       className={cn('material-symbols-outlined', className)}
       style={{

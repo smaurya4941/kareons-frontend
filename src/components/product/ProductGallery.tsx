@@ -52,9 +52,11 @@ export function ProductGallery({ mainImage, images, name, onSale }: ProductGalle
               key={i}
               type="button"
               onClick={() => setActive(src)}
+              aria-label={`View image ${i + 1} of ${all.length}`}
+              aria-pressed={active === src}
               className={cn(
-                'aspect-square overflow-hidden rounded-lg border-2 bg-white transition-colors',
-                active === src ? 'border-brand-gold-dark' : 'border-soft-border hover:border-brand-gold-dark',
+                'aspect-square overflow-hidden rounded-lg border-2 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary',
+                active === src ? 'border-brand-gold-dark shadow-sm' : 'border-soft-border hover:border-brand-gold-dark',
               )}
             >
               <Image src={src} alt={`${name} thumbnail ${i + 1}`} width={100} height={100} className="h-full w-full object-cover" />

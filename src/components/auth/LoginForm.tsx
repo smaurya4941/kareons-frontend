@@ -3,14 +3,13 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authInputClass } from './AuthLayout';
-import { useCounts } from '@/components/layout/CountsProvider';
+import { Input } from '@/components/ui/Input';
+import { getSafeInternalRedirect } from '@/lib/utils/url';
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { setCart, setWishlist } = useCounts();
 
   return (
     <form
@@ -33,24 +32,28 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             return;
           }
 
-          // Server-derived counts refresh on the next request; nudge for instant UI.
-          setCart(0);
-          setWishlist(0);
-          router.push(redirectTo);
+          const target = getSafeInternalRedirect(redirectTo, '/account');
+          router.push(target);
           router.refresh();
         });
       }}
     >
-      <label className="text-sm font-medium text-on-surface-variant">
-        Email
-        <input name="email" type="email" required autoComplete="email" className={`mt-1 ${authInputClass}`} />
-      </label>
-      <label className="text-sm font-medium text-on-surface-variant">
-        Password
-        <input name="password" type="password" required autoComplete="current-password" className={`mt-1 ${authInputClass}`} />
-      </label>
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        required
+        autoComplete="email"
+      />
+      <Input
+        label="Password"
+        name="password"
+        type="password"
+        required
+        autoComplete="current-password"
+      />
 
-      {error && <p className="text-sm text-error">{error}</p>}
+      {error && <p className="text-sm font-medium text-error">{error}</p>}
 
       <button type="submit" disabled={isPending} className="btn-primary mt-1 w-full disabled:opacity-60">
         {isPending ? 'Logging in…' : 'Log In'}

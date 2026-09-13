@@ -63,8 +63,40 @@ function buildUrl(path: string, searchParams?: ApiFetchOptions['searchParams']):
 
 const RETRY_STATUSES = new Set([429, 502, 503, 504]);
 const MAX_ATTEMPTS = 3;
+const READ_TIMEOUT_MS = 12000;
+const MUTATION_TIMEOUT_MS = 30000;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function createCombinedSignal(callerSignal?: AbortSignal | null, timeoutMs = 15000): { signal: AbortSignal; cleanup: () => void } {
+  if (typeof AbortSignal !== 'undefined' && 'any' in AbortSignal && typeof AbortSignal.any === 'function') {
+    const timeoutSignal = AbortSignal.timeout(timeoutMs);
+    const combined = callerSignal ? AbortSignal.any([callerSignal, timeoutSignal]) : timeoutSignal;
+    return { signal: combined, cleanup: () => {} };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort(new Error(`Request timed out after ${timeoutMs}ms`));
+  }, timeoutMs);
+
+  if (callerSignal) {
+    if (callerSignal.aborted) {
+      clearTimeout(timer);
+      controller.abort(callerSignal.reason);
+    } else {
+      callerSignal.addEventListener('abort', () => {
+        clearTimeout(timer);
+        controller.abort(callerSignal.reason);
+      }, { once: true });
+    }
+  }
+
+  return {
+    signal: controller.signal,
+    cleanup: () => clearTimeout(timer),
+  };
+}
 
 /**
  * Thin fetch wrapper for the Laravel API. All request/response shape
@@ -77,28 +109,36 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  * IPs, so a traffic spike can rate-limit the whole site at once otherwise.
  */
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
-  const { body, token, next, searchParams, headers, ...rest } = options;
+  const { body, token, next, searchParams, headers, signal: callerSignal, ...rest } = options;
   const url = buildUrl(path, searchParams);
 
   // Only replay safe (non-mutating) requests — a retried POST could double it.
   const method = (rest.method ?? 'GET').toUpperCase();
   const retryable = method === 'GET' || method === 'HEAD';
   const maxAttempts = retryable ? MAX_ATTEMPTS : 1;
+  const timeoutMs = retryable ? READ_TIMEOUT_MS : MUTATION_TIMEOUT_MS;
 
   let response!: Response;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    response = await fetch(url, {
-      ...rest,
-      headers: {
-        Accept: 'application/json',
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(FRONTEND_API_KEY ? { 'X-Frontend-Key': FRONTEND_API_KEY } : {}),
-        ...headers,
-      },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      next,
-    });
+    const { signal, cleanup } = createCombinedSignal(callerSignal, timeoutMs);
+
+    try {
+      response = await fetch(url, {
+        ...rest,
+        signal,
+        headers: {
+          Accept: 'application/json',
+          ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(FRONTEND_API_KEY ? { 'X-Frontend-Key': FRONTEND_API_KEY } : {}),
+          ...headers,
+        },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        next,
+      });
+    } finally {
+      cleanup();
+    }
 
     if (!RETRY_STATUSES.has(response.status) || attempt === maxAttempts) break;
     await sleep(attempt * 400 + Math.random() * 200);

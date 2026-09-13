@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { getCategory } from '@/lib/api/categories';
 import { getProducts, type ProductSort } from '@/lib/api/products';
 import { getSettings } from '@/lib/api/settings';
@@ -72,7 +73,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <section className="relative overflow-hidden bg-brand-forest text-brand-cream">
         {banner && (
           <>
-            <img src={banner} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+            <Image
+              src={banner}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-30"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-brand-forest to-brand-forest/40" />
           </>
         )}

@@ -62,8 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     blogPage += 1;
   }
 
-  // CMS pages (privacy / terms / faq / …). GET /pages only lists published
-  // pages; per-page `is_indexable` is enforced when the page itself renders.
+  // CMS pages (privacy / terms / faq / …). GET /pages returns published pages.
   const pages = await getPages().catch(() => []);
   for (const cmsPage of pages) {
     entries.push({ url: `${SITE_URL}/${cmsPage.slug}`, changeFrequency: 'monthly', priority: 0.4 });

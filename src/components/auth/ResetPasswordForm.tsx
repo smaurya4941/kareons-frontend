@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { resetPasswordAction } from '@/lib/actions/auth';
-import { authInputClass } from './AuthLayout';
+import { Input } from '@/components/ui/Input';
 
 export function ResetPasswordForm({ token, email }: { token: string; email: string }) {
   const [message, setMessage] = useState<string | null>(null);
@@ -31,23 +31,24 @@ export function ResetPasswordForm({ token, email }: { token: string; email: stri
       }}
     >
       <p className="text-xs text-on-surface-variant">Resetting password for {email}</p>
-      <label className="text-sm font-medium text-on-surface-variant">
-        New Password
-        <input name="password" type="password" required minLength={6} autoComplete="new-password" className={`mt-1 ${authInputClass}`} />
-      </label>
-      <label className="text-sm font-medium text-on-surface-variant">
-        Confirm New Password
-        <input
-          name="password_confirmation"
-          type="password"
-          required
-          minLength={6}
-          autoComplete="new-password"
-          className={`mt-1 ${authInputClass}`}
-        />
-      </label>
+      <Input
+        label="New Password"
+        name="password"
+        type="password"
+        required
+        minLength={6}
+        autoComplete="new-password"
+      />
+      <Input
+        label="Confirm New Password"
+        name="password_confirmation"
+        type="password"
+        required
+        minLength={6}
+        autoComplete="new-password"
+      />
 
-      {message && <p className={`text-sm ${isSuccess ? 'text-secondary' : 'text-error'}`}>{message}</p>}
+      {message && <p className={`text-sm font-medium ${isSuccess ? 'text-secondary' : 'text-error'}`}>{message}</p>}
 
       <button type="submit" disabled={isPending} className="btn-primary mt-1 w-full disabled:opacity-60">
         {isPending ? 'Resetting…' : 'Reset Password'}

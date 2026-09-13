@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authInputClass } from './AuthLayout';
+import { Input } from '@/components/ui/Input';
 
 export function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
@@ -46,42 +46,51 @@ export function RegisterForm() {
         });
       }}
     >
-      <label className="text-sm font-medium text-on-surface-variant">
-        Full Name
-        <input name="name" required autoComplete="name" className={`mt-1 ${authInputClass}`} />
-      </label>
-      <label className="text-sm font-medium text-on-surface-variant">
-        Email
-        <input name="email" type="email" required autoComplete="email" className={`mt-1 ${authInputClass}`} />
-      </label>
-      <label className="text-sm font-medium text-on-surface-variant">
-        Phone Number
-        <input name="phone" required autoComplete="tel" className={`mt-1 ${authInputClass}`} />
-      </label>
+      <Input
+        label="Full Name"
+        name="name"
+        required
+        autoComplete="name"
+        error={fieldErrors.name?.[0]}
+      />
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        required
+        autoComplete="email"
+        error={fieldErrors.email?.[0]}
+      />
+      <Input
+        label="Phone Number"
+        name="phone"
+        type="tel"
+        required
+        autoComplete="tel"
+        error={fieldErrors.phone?.[0]}
+      />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="text-sm font-medium text-on-surface-variant">
-          Password
-          <input name="password" type="password" required minLength={6} autoComplete="new-password" className={`mt-1 ${authInputClass}`} />
-        </label>
-        <label className="text-sm font-medium text-on-surface-variant">
-          Confirm
-          <input
-            name="password_confirmation"
-            type="password"
-            required
-            minLength={6}
-            autoComplete="new-password"
-            className={`mt-1 ${authInputClass}`}
-          />
-        </label>
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          required
+          minLength={6}
+          autoComplete="new-password"
+          error={fieldErrors.password?.[0]}
+        />
+        <Input
+          label="Confirm Password"
+          name="password_confirmation"
+          type="password"
+          required
+          minLength={6}
+          autoComplete="new-password"
+          error={fieldErrors.password_confirmation?.[0]}
+        />
       </div>
 
-      {error && <p className="text-sm text-error">{error}</p>}
-      {Object.entries(fieldErrors).map(([field, messages]) => (
-        <p key={field} className="text-xs text-error">
-          {messages.join(' ')}
-        </p>
-      ))}
+      {error && <p className="text-sm font-medium text-error">{error}</p>}
 
       <button type="submit" disabled={isPending} className="btn-primary mt-1 w-full disabled:opacity-60">
         {isPending ? 'Creating account…' : 'Create Account'}

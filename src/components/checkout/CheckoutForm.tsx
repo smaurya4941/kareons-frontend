@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Script from 'next/script';
 import { placeOrderAction, verifyPaymentAction } from '@/lib/actions/checkout';
 import { validateCouponAction } from '@/lib/actions/coupon';
@@ -11,6 +12,8 @@ import { useCounts } from '@/components/layout/CountsProvider';
 import { Icon } from '@/components/ui/Icon';
 import { formatMoney } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import type { Address, CheckoutSummary } from '@/types/api';
 
 const EMPTY = {
@@ -24,9 +27,6 @@ const EMPTY = {
 };
 
 type AddressFields = typeof EMPTY;
-
-const inputClass =
-  'w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-sm outline-none focus:border-primary';
 
 function fill(address: Address): AddressFields {
   return {
@@ -188,19 +188,18 @@ export function CheckoutForm({
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
       <div className="space-y-6 lg:w-2/3">
-        <section className="rounded-xl border border-outline-variant bg-surface p-5 shadow-sm">
-          <div className="mb-4 flex items-center gap-3 border-b border-outline-variant pb-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-bold text-white">1</span>
-            <h2 className="text-xl font-bold text-on-surface">Delivery Details</h2>
+        <section className="rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm">
+          <div className="mb-5 flex items-center gap-3 border-b border-border-subtle pb-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-xs font-bold text-white">1</span>
+            <h2 className="font-display text-lg font-bold text-brand-forest">Delivery Details</h2>
           </div>
 
           {summary.addresses.length > 0 && (
             <div className="mb-6">
-              <label className="mb-2 block text-sm font-medium text-on-surface-variant">Use a Saved Address</label>
-              <select
+              <Select
+                label="Use a Saved Address"
                 value={selectedId}
                 onChange={(e) => chooseSaved(e.target.value)}
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-sm outline-none focus:border-primary"
               >
                 <option value="">— Enter a new address below —</option>
                 {summary.addresses.map((a) => (
@@ -208,7 +207,7 @@ export function CheckoutForm({
                     {a.full_name} ({a.postal_code}) — {a.address_line_1}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           )}
 
@@ -247,18 +246,18 @@ export function CheckoutForm({
           )}
         </section>
 
-        <section className="rounded-xl border border-outline-variant bg-surface p-5 shadow-sm">
-          <div className="mb-4 flex items-center gap-3 border-b border-outline-variant pb-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-bold text-white">2</span>
-            <h2 className="text-xl font-bold text-on-surface">Payment Method</h2>
+        <section className="rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm">
+          <div className="mb-5 flex items-center gap-3 border-b border-border-subtle pb-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-forest text-xs font-bold text-white">2</span>
+            <h2 className="font-display text-lg font-bold text-brand-forest">Payment Method</h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {summary.payment_methods.map((pm) => (
               <label
                 key={pm.code}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between rounded-xl border p-4 transition hover:bg-surface-container',
-                  paymentMethod === pm.code ? 'border-primary bg-herbal-light' : 'border-outline-variant',
+                  'flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all hover:border-brand-gold/40 hover:bg-surface-subtle',
+                  paymentMethod === pm.code ? 'border-brand-forest bg-surface-subtle ring-1 ring-brand-forest' : 'border-border-card',
                 )}
               >
                 <span className="flex items-center gap-3">
@@ -267,14 +266,14 @@ export function CheckoutForm({
                     name="payment_method"
                     checked={paymentMethod === pm.code}
                     onChange={() => setPaymentMethod(pm.code)}
-                    className="h-5 w-5 accent-primary"
+                    className="h-5 w-5 accent-brand-forest"
                   />
                   <span className="font-semibold text-on-surface">{pm.name}</span>
                 </span>
                 <Icon
                   name={pm.code === 'cod' ? 'local_shipping' : pm.code === 'razorpay' ? 'account_balance' : 'account_balance_wallet'}
-                  size={28}
-                  className={paymentMethod === pm.code ? 'text-primary' : 'text-outline'}
+                  size={26}
+                  className={paymentMethod === pm.code ? 'text-brand-forest' : 'text-outline'}
                 />
               </label>
             ))}
@@ -283,16 +282,19 @@ export function CheckoutForm({
       </div>
 
       <div className="lg:w-1/3">
-        <div className="sticky top-20 rounded-xl border border-outline-variant bg-surface p-5 shadow-sm">
-          <h2 className="mb-4 border-b border-outline-variant pb-3 text-lg font-bold text-on-surface">Order Summary</h2>
+        <div className="sticky top-20 rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm">
+          <h2 className="mb-4 border-b border-border-subtle pb-3 font-display text-lg font-bold text-on-surface">Order Summary</h2>
 
           <div className="mb-6 max-h-[36vh] space-y-4 overflow-y-auto pr-1">
             {summary.items.map((item) => (
               <div key={item.id} className="flex gap-3">
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded border border-outline-variant bg-surface-container">
-                  {item.product?.main_image && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.product.main_image} alt="" className="h-full w-full object-cover" />
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border-subtle bg-surface-subtle">
+                  {item.product?.main_image ? (
+                    <Image src={item.product.main_image} alt={item.product.name ?? ''} width={56} height={56} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-outline">
+                      <Icon name="image" size={20} />
+                    </div>
                   )}
                 </div>
                 <div className="flex-1">
@@ -392,19 +394,14 @@ function Field({
   placeholder?: string;
 }) {
   return (
-    <div>
-      <label className="mb-1 block text-sm font-medium text-on-surface-variant">
-        {label} {required && <span className="text-error">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        required={required}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className={inputClass}
-      />
-    </div>
+    <Input
+      label={label}
+      type={type}
+      value={value}
+      required={required}
+      placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 

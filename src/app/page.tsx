@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getHomeData } from '@/lib/api/home';
 import { getSettings } from '@/lib/api/settings';
 import { getSessionToken } from '@/lib/auth/session';
@@ -162,10 +163,12 @@ export default async function HomePage() {
                   className="group relative block aspect-[4/5] overflow-hidden rounded-xl bg-brand-forest shadow-sm transition-all hover:shadow-xl"
                 >
                   {(cat.banner_image || cat.image) && (
-                    <img
+                    <Image
                       src={(cat.banner_image || cat.image)!}
                       alt={cat.name}
-                      className="absolute inset-0 h-full w-full object-cover opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 50vw"
+                      className="object-cover opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-forest via-brand-forest/40 to-transparent" />
@@ -184,17 +187,19 @@ export default async function HomePage() {
         </section>
       )}
 
-      <ProductRail title="Featured Products" eyebrow="Handpicked" products={home.featured_products} authed={authed} wishlistIds={wishlistIds} bg="bg-white border-y border-brand-beige" />
-      <ProductRail title="Trending Products" eyebrow="Popular Now" products={home.trending_products} authed={authed} wishlistIds={wishlistIds} bg="bg-white" />
-      <ProductRail title="New Arrivals" eyebrow="Just In" products={home.new_arrivals} authed={authed} wishlistIds={wishlistIds} bg="bg-brand-cream border-t border-brand-beige" viewAllHref="/shop?sort=latest" />
+      <ProductRail title="Featured Products" eyebrow="Handpicked" products={home.featured_products} authed={authed} wishlistIds={wishlistIds} bg="bg-surface-card border-y border-border-card" />
+      <ProductRail title="Trending Products" eyebrow="Popular Now" products={home.trending_products} authed={authed} wishlistIds={wishlistIds} bg="bg-surface-subtle" />
+      <ProductRail title="New Arrivals" eyebrow="Just In" products={home.new_arrivals} authed={authed} wishlistIds={wishlistIds} bg="bg-brand-cream/25 border-t border-border-card" viewAllHref="/shop?sort=latest" />
 
       {/* Ingredient spotlight */}
       {settings.home.ingredient_spotlight.bg && (
         <section className="relative h-[300px] w-full overflow-hidden md:h-[450px]">
-          <img
+          <Image
             src={settings.home.ingredient_spotlight.bg}
             alt={settings.home.ingredient_spotlight.title ?? 'Ingredient spotlight'}
-            className="h-full w-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-brand-forest/60 to-transparent p-8 md:p-16">
             <Container>
@@ -220,7 +225,15 @@ export default async function HomePage() {
         <section className="relative overflow-hidden bg-brand-forest text-brand-cream">
           <div className="flex w-full flex-col md:min-h-[400px] md:flex-row">
             <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden bg-brand-forest-dark md:w-1/3">
-              {expert.image && <img src={expert.image} alt={expert.name ?? 'Expert'} className="h-full w-full object-cover" />}
+              {expert.image && (
+                <Image
+                  src={expert.image}
+                  alt={expert.name ?? 'Expert'}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-brand-forest/80 md:to-brand-forest" />
             </div>
             <div className="relative flex w-full flex-col justify-center px-margin-mobile py-12 md:w-2/3 md:px-16 md:py-16">
@@ -253,7 +266,7 @@ export default async function HomePage() {
             {ETHOS.map((item) => (
               <div
                 key={item.title}
-                className="rounded-xl border border-brand-beige bg-white p-4 text-center transition-all hover:border-brand-gold/40 hover:shadow-md md:p-5"
+                className="rounded-2xl border border-border-card bg-surface-card p-4 text-center shadow-botanical-sm transition-all duration-300 hover:border-brand-gold/40 hover:shadow-botanical-md md:p-6"
               >
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-brand-sage/30 bg-brand-sage/15">
                   <Icon name={item.icon} size={28} fill className="text-brand-forest" />
@@ -275,7 +288,7 @@ export default async function HomePage() {
               {home.testimonials.map((t) => (
                 <div
                   key={t.id}
-                  className="flex flex-col justify-between rounded-xl border border-brand-beige bg-white p-5 shadow-sm transition-all hover:border-brand-gold/40 hover:shadow-md"
+                  className="flex flex-col justify-between rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm transition-all duration-300 hover:border-brand-gold/40 hover:shadow-botanical-md"
                 >
                   <div>
                     <StarRating rating={t.rating} showValue={false} size={20} className="mb-3" />
@@ -294,7 +307,7 @@ export default async function HomePage() {
 
       {/* Latest blogs */}
       {home.blogs.length > 0 && (
-        <section className="border-t border-brand-beige bg-white py-10 md:py-14">
+        <section className="border-t border-border-card bg-white py-10 md:py-14">
           <Container>
             <SectionHeading eyebrow="Ayurvedic Wisdom" title="Latest Articles" viewAll={{ label: 'Read All', href: '/blog' }} />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
@@ -302,15 +315,19 @@ export default async function HomePage() {
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}
-                  className="group block rounded-xl border border-brand-beige bg-brand-cream p-4 transition-all hover:border-brand-gold/40 hover:shadow-md"
+                  className="group block rounded-2xl border border-border-card bg-surface-card p-5 shadow-botanical-sm transition-all duration-300 hover:border-brand-gold/40 hover:shadow-botanical-md"
                 >
-                  <div className="mb-4 aspect-[4/3] overflow-hidden rounded-lg bg-brand-beige">
+                  <div className="mb-4 aspect-[4/3] overflow-hidden rounded-lg bg-brand-cream/40">
                     {post.featured_image ? (
-                      <img
-                        src={post.featured_image}
-                        alt={post.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                      <div className="relative h-full w-full">
+                        <Image
+                          src={post.featured_image}
+                          alt={post.title}
+                          fill
+                          sizes="(min-width: 768px) 33vw, 100vw"
+                          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                        />
+                      </div>
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-brand-sage-dark">
                         <Icon name="article" size={40} />
@@ -334,14 +351,14 @@ export default async function HomePage() {
       )}
 
       {/* FAQ */}
-      <section className="border-t border-brand-beige bg-white py-10 md:py-14">
+      <section className="border-t border-border-card bg-white py-10 md:py-14">
         <Container className="max-w-3xl">
           <SectionHeading align="center" eyebrow="Common Questions" title="Frequently Asked Questions" />
-          <div className="space-y-6">
+          <div className="space-y-4">
             {FAQS.map((f) => (
               <article
                 key={f.q}
-                className="rounded-xl border border-brand-beige bg-brand-cream p-5 transition-all hover:border-brand-gold/40"
+                className="rounded-xl border border-border-card bg-surface-subtle p-5 transition-colors hover:border-brand-gold/40"
               >
                 <h3 className="mb-2 font-display text-lg text-brand-forest">{f.q}</h3>
                 <p className="text-body-md text-brand-forest/70">{f.a}</p>

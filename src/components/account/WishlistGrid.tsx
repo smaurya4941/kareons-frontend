@@ -10,7 +10,9 @@ import { Icon } from '@/components/ui/Icon';
 import { Price } from '@/components/ui/Price';
 import { StarRating } from '@/components/ui/StarRating';
 import { QuickAddButton } from '@/components/product/QuickAddButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { ProductCard } from '@/types/api';
+
 
 interface Entry {
   id: number;
@@ -41,19 +43,12 @@ export function WishlistGrid({ entries }: { entries: Entry[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-soft-border bg-white px-6 py-14 text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-herbal-light">
-          <Icon name="favorite" size={32} className="text-brand-gold-dark" />
-        </div>
-        <h3 className="text-xl font-bold text-on-surface">Your wishlist is empty</h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-on-surface-variant">
-          Save items you love and review them later.
-        </p>
-        <Link href="/shop" className="btn-primary mt-6">
-          <Icon name="storefront" size={18} />
-          Browse Products
-        </Link>
-      </div>
+      <EmptyState
+        icon="favorite"
+        title="Your wishlist is empty"
+        description="Save items you love and review them later."
+        action={{ label: 'Browse Products', href: '/shop', icon: 'storefront' }}
+      />
     );
   }
 

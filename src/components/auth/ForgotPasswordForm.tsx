@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { forgotPasswordAction } from '@/lib/actions/auth';
-import { authInputClass } from './AuthLayout';
+import { Input } from '@/components/ui/Input';
 
 export function ForgotPasswordForm() {
   const [message, setMessage] = useState<string | null>(null);
@@ -23,12 +23,17 @@ export function ForgotPasswordForm() {
         });
       }}
     >
-      <label className="text-sm font-medium text-on-surface-variant">
-        Email
-        <input name="email" type="email" required className={`mt-1 ${authInputClass}`} />
-      </label>
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        required
+        autoComplete="email"
+      />
 
-      {message && <p className={`text-sm ${isSuccess ? 'text-secondary' : 'text-error'}`}>{message}</p>}
+      {message && (
+        <p className={`text-sm font-medium ${isSuccess ? 'text-secondary' : 'text-error'}`}>{message}</p>
+      )}
 
       <button type="submit" disabled={isPending} className="btn-primary mt-1 w-full disabled:opacity-60">
         {isPending ? 'Sending…' : 'Send Reset Link'}

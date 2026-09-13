@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Icon } from '@/components/ui/Icon';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { formatMoney } from '@/lib/utils/format';
+import { cn } from '@/lib/utils/cn';
 import type { CartItem } from '@/types/api';
 
 export function CartLineItem({ item }: { item: CartItem }) {
@@ -46,7 +47,12 @@ export function CartLineItem({ item }: { item: CartItem }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4 sm:grid sm:grid-cols-12">
+    <div
+      className={cn(
+        'flex flex-col items-center gap-4 p-4 transition-opacity duration-200 sm:grid sm:grid-cols-12',
+        isPending && 'pointer-events-none opacity-60',
+      )}
+    >
       <div className="flex w-full items-center gap-3 sm:col-span-6">
         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-soft-border bg-surface-container">
           {product.main_image ? (
@@ -66,7 +72,13 @@ export function CartLineItem({ item }: { item: CartItem }) {
           </Link>
           <div className="mt-2 flex items-center justify-between sm:hidden">
             <span className="text-sm font-bold text-on-surface">₹{formatMoney(item.unit_price)}</span>
-            <button type="button" onClick={remove} disabled={isPending} className="flex items-center gap-1 text-xs font-medium text-error hover:underline">
+            <button
+              type="button"
+              onClick={remove}
+              disabled={isPending}
+              aria-label={`Remove ${product.name} from cart`}
+              className="flex items-center gap-1 text-xs font-medium text-error hover:underline disabled:opacity-50"
+            >
               <Icon name="delete" size={16} /> Remove
             </button>
           </div>
@@ -83,7 +95,14 @@ export function CartLineItem({ item }: { item: CartItem }) {
 
       <div className="hidden flex-col items-end sm:col-span-2 sm:flex">
         <span className="text-sm font-bold text-on-surface">₹{formatMoney(item.line_total)}</span>
-        <button type="button" onClick={remove} disabled={isPending} title="Remove item" className="mt-1.5 text-on-surface-variant transition hover:text-error">
+        <button
+          type="button"
+          onClick={remove}
+          disabled={isPending}
+          aria-label={`Remove ${product.name} from cart`}
+          title="Remove item"
+          className="mt-1.5 text-on-surface-variant transition hover:text-error disabled:opacity-50"
+        >
           <Icon name="delete" size={18} />
         </button>
       </div>

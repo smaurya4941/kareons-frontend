@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getBlogPost } from '@/lib/api/blog';
 import { getSettings } from '@/lib/api/settings';
 import { ApiError } from '@/lib/api/client';
@@ -80,11 +81,16 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {blog.featured_image && (
-          <img
-            src={blog.featured_image}
-            alt={blog.title}
-            className="mb-8 aspect-video w-full rounded-xl object-cover"
-          />
+          <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-xl bg-surface-container">
+            <Image
+              src={blog.featured_image}
+              alt={blog.title}
+              fill
+              priority
+              sizes="(min-width: 1024px) 896px, 100vw"
+              className="object-cover"
+            />
+          </div>
         )}
 
         <div
@@ -123,11 +129,15 @@ export default async function BlogPostPage({ params }: Props) {
                 className="group block rounded-xl border border-brand-beige bg-brand-cream p-4 transition-all hover:border-brand-gold/40 hover:shadow-md"
               >
                 {post.featured_image && (
-                  <img
-                    src={post.featured_image}
-                    alt={post.title}
-                    className="mb-3 aspect-[4/3] w-full rounded-lg object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <div className="relative mb-3 aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-container">
+                    <Image
+                      src={post.featured_image}
+                      alt={post.title}
+                      fill
+                      sizes="(min-width: 640px) 33vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
                 )}
                 <h3 className="line-clamp-2 font-display text-base text-brand-forest transition-colors group-hover:text-brand-gold-dark">
                   {post.title}

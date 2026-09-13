@@ -5,17 +5,15 @@ import { useRouter } from 'next/navigation';
 import { deleteAccountAction, updatePasswordAction, updateProfileAction } from '@/lib/actions/profile';
 import { useToast } from '@/components/ui/Toast';
 import { Icon } from '@/components/ui/Icon';
+import { Input } from '@/components/ui/Input';
 import type { User } from '@/types/api';
-
-const inputClass =
-  'mt-1 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-sm outline-none focus:border-primary';
 
 function Card({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-outline-variant bg-surface p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-on-surface">{title}</h2>
+    <section className="rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm">
+      <h2 className="font-display text-lg font-bold text-brand-forest">{title}</h2>
       {description && <p className="mt-1 text-sm text-on-surface-variant">{description}</p>}
-      <div className="mt-4">{children}</div>
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
@@ -23,13 +21,13 @@ function Card({ title, description, children }: { title: string; description?: s
 export function ProfileForm({ user }: { user: User }) {
   return (
     <div className="max-w-2xl space-y-6">
-      <Card title="Profile Information" description="Update your account's name, email and phone number.">
+      <Card title="Personal Information" description="Update your personal details and contact phone number.">
         <ProfileFields user={user} />
       </Card>
-      <Card title="Update Password" description="Use a long, random password to stay secure.">
+      <Card title="Security & Password" description="Ensure your account is using a secure, long password.">
         <PasswordFields />
       </Card>
-      <Card title="Delete Account" description="Permanently delete your account and all of its data.">
+      <Card title="Danger Zone" description="Permanently delete your Kare-Ons account and all associated order history.">
         <DeleteAccount />
       </Card>
     </div>
@@ -57,21 +55,16 @@ function ProfileFields({ user }: { user: User }) {
         });
       }}
     >
-      <label className="block text-sm font-medium text-on-surface-variant">
-        Name
-        <input name="name" defaultValue={user.name} required className={inputClass} />
-      </label>
-      <label className="block text-sm font-medium text-on-surface-variant">
-        Email
-        <input name="email" type="email" defaultValue={user.email} required className={inputClass} />
-        {!user.email_verified_at && (
-          <span className="mt-1 block text-xs text-amber-600">Email not verified — check your inbox.</span>
-        )}
-      </label>
-      <label className="block text-sm font-medium text-on-surface-variant">
-        Phone
-        <input name="phone" type="tel" required defaultValue={user.phone ?? ''} className={inputClass} />
-      </label>
+      <Input label="Name" name="name" defaultValue={user.name} required />
+      <Input
+        label="Email"
+        name="email"
+        type="email"
+        defaultValue={user.email}
+        required
+        helperText={!user.email_verified_at ? 'Email not verified — check your inbox.' : undefined}
+      />
+      <Input label="Phone" name="phone" type="tel" defaultValue={user.phone ?? ''} required />
       <button type="submit" disabled={isPending} className="btn-primary disabled:opacity-60">
         {isPending ? 'Saving…' : 'Save Changes'}
       </button>
@@ -105,18 +98,9 @@ function PasswordFields() {
         });
       }}
     >
-      <label className="block text-sm font-medium text-on-surface-variant">
-        Current Password
-        <input name="current_password" type="password" required className={inputClass} />
-      </label>
-      <label className="block text-sm font-medium text-on-surface-variant">
-        New Password
-        <input name="password" type="password" required minLength={6} className={inputClass} />
-      </label>
-      <label className="block text-sm font-medium text-on-surface-variant">
-        Confirm New Password
-        <input name="password_confirmation" type="password" required minLength={6} className={inputClass} />
-      </label>
+      <Input label="Current Password" name="current_password" type="password" required />
+      <Input label="New Password" name="password" type="password" required minLength={6} />
+      <Input label="Confirm New Password" name="password_confirmation" type="password" required minLength={6} />
       <button type="submit" disabled={isPending} className="btn-primary disabled:opacity-60">
         {isPending ? 'Saving…' : 'Update Password'}
       </button>
@@ -144,7 +128,7 @@ function DeleteAccount() {
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-error/30 bg-error/5 p-4"
+      className="space-y-4 rounded-xl border border-error/30 bg-error/5 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
@@ -159,22 +143,22 @@ function DeleteAccount() {
         });
       }}
     >
-      <p className="text-sm text-error">
-        This cannot be undone. Enter your password to permanently delete your account.
+      <p className="text-sm font-medium text-error">
+        This action cannot be undone. Please enter your password to confirm permanent account deletion.
       </p>
-      <input name="password" type="password" required placeholder="Password" className={inputClass} />
-      <div className="flex gap-2">
+      <Input name="password" type="password" required placeholder="Enter password to confirm" aria-label="Confirm password to delete account" />
+      <div className="flex gap-3">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-error px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="btn-squish rounded-xl bg-error px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60 shadow-sm"
         >
           {isPending ? 'Deleting…' : 'Permanently Delete'}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-lg border border-outline-variant px-4 py-2 text-sm"
+          className="rounded-xl border border-border-subtle bg-surface-subtle px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-subtle/80"
         >
           Cancel
         </button>

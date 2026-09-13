@@ -10,6 +10,8 @@ import { SearchBox } from './SearchBox';
 import { CartBadge, WishlistBadge } from './CartBadge';
 import { cn } from '@/lib/utils/cn';
 
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+
 interface HeaderClientProps {
   logo: string | null;
   siteName: string;
@@ -31,8 +33,14 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
+  const mobileMenuRef = useFocusTrap<HTMLDivElement>({
+    active: mobileOpen,
+    onClose: () => setMobileOpen(false),
+    lockScroll: true,
+  });
+
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-outline-variant bg-white/90 backdrop-blur-md">
+    <nav className="fixed top-0 z-50 w-full border-b border-border-card bg-white/95 backdrop-blur-md">
       <div className="flex h-8 w-full items-center justify-center gap-2 bg-brand-forest px-margin-mobile text-center text-xs font-medium text-brand-cream md:px-margin-desktop">
         <span className="rounded-full bg-brand-gold px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-forest">
           Available Soon
@@ -53,19 +61,24 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
           <NavItem href="/shop" label="Shop" active={pathname === '/shop'} />
 
           <div className="group relative flex h-full items-center">
-            <button className="flex items-center gap-1 text-sm font-medium text-on-surface transition-colors hover:text-brand-gold-dark">
+            <button
+              type="button"
+              aria-haspopup="true"
+              className="flex items-center gap-1 text-sm font-medium text-on-surface transition-colors hover:text-brand-gold-dark"
+            >
               Categories
               <Icon name="expand_more" size={16} />
             </button>
-            <div className="invisible absolute left-0 top-full z-50 w-64 overflow-hidden rounded-b-lg border border-outline-variant bg-white opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:opacity-100">
+            <div className="invisible absolute left-0 top-full z-50 w-64 overflow-hidden rounded-xl border border-border-card bg-surface-card opacity-0 shadow-botanical-md transition-all duration-200 group-hover:visible group-hover:opacity-100">
               <div className="flex flex-col py-1">
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className="px-4 py-3 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container hover:text-brand-gold-dark"
+                    className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-subtle hover:text-brand-forest"
                   >
-                    {cat.name}
+                    <span>{cat.name}</span>
+                    <Icon name="chevron_right" size={16} className="text-on-surface-variant/40" />
                   </Link>
                 ))}
               </div>
@@ -119,8 +132,10 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
           )}
 
           <button
+            type="button"
             className="ml-1 text-on-surface md:hidden"
-            aria-label="Menu"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((o) => !o)}
           >
             <Icon name={mobileOpen ? 'close' : 'menu'} size={24} />
@@ -129,49 +144,62 @@ export function HeaderClient({ logo, siteName, categories, authenticated }: Head
       </div>
 
       {mobileOpen && (
-        <div className="absolute left-0 top-[88px] h-[calc(100vh-88px)] w-full overflow-y-auto border-t border-outline-variant bg-white shadow-lg md:hidden">
-          <div className="flex flex-col px-margin-mobile py-4">
+        <div
+          ref={mobileMenuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation"
+          className="absolute left-0 top-[88px] h-[calc(100vh-88px)] w-full overflow-y-auto border-t border-border-card bg-surface-card shadow-botanical-lg md:hidden"
+        >
+          <div className="flex flex-col px-margin-mobile py-4 space-y-1">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  'border-b border-surface-container py-3 text-sm font-medium',
-                  isActive(item.href) ? 'text-brand-forest' : 'text-on-surface',
+                  'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive(item.href)
+                    ? 'bg-surface-subtle font-semibold text-brand-forest'
+                    : 'text-on-surface hover:bg-surface-subtle hover:text-brand-gold-dark',
                 )}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="border-b border-surface-container py-3">
-              <p className="mb-2 text-sm font-medium text-on-surface">Categories</p>
-              <div className="flex flex-col gap-3 pl-4">
+
+            <div className="border-t border-border-subtle pt-3 mt-2">
+              <p className="px-3 pb-2 text-xs font-bold uppercase tracking-wider text-brand-sage-dark">
+                Categories
+              </p>
+              <div className="flex flex-col space-y-0.5">
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
                     onClick={() => setMobileOpen(false)}
-                    className="text-sm text-on-surface-variant hover:text-brand-gold-dark"
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-on-surface transition-colors hover:bg-surface-subtle hover:text-brand-forest"
                   >
-                    {cat.name}
+                    <span>{cat.name}</span>
+                    <Icon name="chevron_right" size={16} className="text-on-surface-variant/40" />
                   </Link>
                 ))}
               </div>
             </div>
+
             {!authenticated && (
-              <div className="flex gap-3 pt-4">
+              <div className="border-t border-border-subtle pt-4 mt-3 flex gap-3">
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 rounded-md border border-brand-forest py-2 text-center text-sm font-medium text-brand-forest"
+                  className="flex-1 rounded-lg border border-brand-forest py-2.5 text-center text-sm font-medium text-brand-forest transition-colors hover:bg-brand-forest hover:text-white"
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileOpen(false)}
-                  className="flex-1 rounded-md bg-brand-forest py-2 text-center text-sm font-medium text-white"
+                  className="flex-1 rounded-lg bg-brand-forest py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-brand-forest-dark"
                 >
                   Register
                 </Link>

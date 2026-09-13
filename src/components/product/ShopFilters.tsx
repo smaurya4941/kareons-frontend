@@ -1,9 +1,11 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { cn } from '@/lib/utils/cn';
+
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface Props {
   categories: { id: number; name: string; slug: string }[];
@@ -17,30 +19,50 @@ const CERT_CHIPS = ['GMP Certified', 'Ayush Certified', '100% Vegan'];
 export function ShopFilters({ categories, activeParams, hideCategories = false }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const filterDrawerRef = useFocusTrap<HTMLDivElement>({
+    active: mobileOpen,
+    onClose: () => setMobileOpen(false),
+    lockScroll: true,
+  });
+
   return (
     <>
       <button
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="flex items-center gap-1 text-sm font-medium text-brand-gold-dark lg:hidden"
+        aria-expanded={mobileOpen}
+        aria-controls="mobile-filter-drawer"
+        className="inline-flex items-center gap-1.5 rounded-xl border border-border-card bg-surface-card px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-forest shadow-botanical-sm hover:border-brand-gold/50 transition-colors lg:hidden"
       >
-        <Icon name="filter_list" size={20} />
-        Filters
+        <Icon name="tune" size={18} />
+        Filter &amp; Refine
       </button>
 
       <aside className="hidden w-full flex-shrink-0 lg:block lg:w-64">
-        <div className="sticky top-20 rounded-lg border border-soft-border bg-white p-5 shadow-sm">
+        <div className="sticky top-24 rounded-2xl border border-border-card bg-surface-card p-6 shadow-botanical-sm">
           <FilterForm categories={categories} activeParams={activeParams} hideCategories={hideCategories} />
         </div>
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/25" onClick={() => setMobileOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-full max-w-xs overflow-y-auto bg-white p-4 shadow-xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-on-surface">Filters</h2>
-              <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={() => setMobileOpen(false)} />
+          <div
+            id="mobile-filter-drawer"
+            ref={filterDrawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filter products"
+            className="absolute inset-y-0 left-0 w-full max-w-xs overflow-y-auto bg-surface-card p-6 shadow-botanical-lg"
+          >
+            <div className="mb-5 flex items-center justify-between border-b border-border-subtle pb-3">
+              <h2 className="font-display text-base font-bold text-brand-forest">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close filters"
+                className="rounded-lg p-1 text-on-surface-variant hover:bg-surface-subtle hover:text-on-surface"
+              >
                 <Icon name="close" size={22} />
               </button>
             </div>
@@ -69,11 +91,17 @@ function FilterForm({
   const [minPrice, setMinPrice] = useState(activeParams.min_price ?? '');
   const [maxPrice, setMaxPrice] = useState(activeParams.max_price ?? '');
 
-  useEffect(() => {
+  const [prevParams, setPrevParams] = useState(activeParams);
+  if (
+    prevParams.search !== activeParams.search ||
+    prevParams.min_price !== activeParams.min_price ||
+    prevParams.max_price !== activeParams.max_price
+  ) {
+    setPrevParams(activeParams);
     setSearch(activeParams.search ?? '');
     setMinPrice(activeParams.min_price ?? '');
     setMaxPrice(activeParams.max_price ?? '');
-  }, [activeParams.search, activeParams.min_price, activeParams.max_price]);
+  }
 
   function applyParams(overrides: Record<string, string | undefined>) {
     const next = new URLSearchParams();
@@ -87,9 +115,9 @@ function FilterForm({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-on-surface">Search Products</h3>
+        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-brand-gold-dark">Search</h3>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -97,25 +125,25 @@ function FilterForm({
           }}
           className="relative"
         >
-          <Icon name="search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+          <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search Kare Ons..."
-            className="w-full rounded border border-soft-border py-2 pl-10 pr-3 text-sm outline-none focus:border-brand-gold-dark"
+            placeholder="Search herbal blends..."
+            className="w-full rounded-xl border border-border-card bg-surface-subtle/50 py-2 pl-9 pr-3 text-sm text-on-surface outline-none transition-colors focus:border-brand-forest focus:ring-1 focus:ring-brand-forest"
           />
         </form>
       </div>
 
       {!hideCategories && (
         <>
-          <hr className="border-soft-border" />
+          <hr className="border-border-subtle" />
           <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-on-surface">Categories</h3>
-            <div className="space-y-2.5">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-gold-dark">Categories</h3>
+            <div className="space-y-2">
               <CategoryRadio
-                label="All Products"
+                label="All Formulations"
                 checked={!activeParams.category}
                 onChange={() => applyParams({ category: undefined })}
               />
@@ -132,9 +160,9 @@ function FilterForm({
         </>
       )}
 
-      <hr className="border-soft-border" />
+      <hr className="border-border-subtle" />
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-on-surface">Price Range</h3>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-gold-dark">Price Range (₹)</h3>
         <div className="space-y-3">
           <div className="flex gap-2">
             <input
@@ -143,7 +171,7 @@ function FilterForm({
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="Min ₹"
-              className="w-full rounded border border-soft-border px-3 py-2 text-sm outline-none focus:border-brand-gold-dark"
+              className="w-full rounded-xl border border-border-card bg-surface-subtle/50 px-3 py-2 text-sm text-on-surface outline-none transition-colors focus:border-brand-forest focus:ring-1 focus:ring-brand-forest"
             />
             <input
               type="number"
@@ -151,31 +179,31 @@ function FilterForm({
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="Max ₹"
-              className="w-full rounded border border-soft-border px-3 py-2 text-sm outline-none focus:border-brand-gold-dark"
+              className="w-full rounded-xl border border-border-card bg-surface-subtle/50 px-3 py-2 text-sm text-on-surface outline-none transition-colors focus:border-brand-forest focus:ring-1 focus:ring-brand-forest"
             />
           </div>
           <button
             type="button"
             onClick={() => applyParams({ min_price: minPrice || undefined, max_price: maxPrice || undefined })}
-            className="w-full rounded border border-soft-border bg-surface-container py-2 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"
+            className="btn-squish w-full rounded-xl bg-brand-forest/10 border border-brand-forest/20 py-2 text-xs font-semibold text-brand-forest transition-colors hover:bg-brand-forest hover:text-white"
           >
             Apply Price Filter
           </button>
         </div>
       </div>
 
-      <hr className="border-soft-border" />
+      <hr className="border-border-subtle" />
       <div>
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-on-surface">Certifications</h3>
-        <div className="flex flex-wrap gap-2">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-gold-dark">Quality Standards</h3>
+        <div className="flex flex-wrap gap-1.5">
           {CERT_CHIPS.map((chip, i) => (
             <span
               key={chip}
               className={cn(
                 'rounded-full border px-2.5 py-1 text-xs font-medium',
-                i < 2
-                  ? 'border-brand-gold/20 bg-herbal-light text-brand-gold-dark'
-                  : 'border-soft-border bg-surface-container text-on-surface-variant',
+                i === 0
+                  ? 'border-brand-gold/30 bg-brand-gold/10 text-brand-gold-dark'
+                  : 'border-border-subtle bg-surface-subtle text-on-surface-variant',
               )}
             >
               {chip}

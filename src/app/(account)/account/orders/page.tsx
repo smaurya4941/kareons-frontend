@@ -37,27 +37,30 @@ export default async function OrdersPage({ searchParams }: Props) {
       ) : (
         <ul className="space-y-4">
           {orders.map((order) => (
-            <li key={order.id} className="rounded-xl border border-outline-variant bg-surface p-4 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant pb-3">
+            <li
+              key={order.id}
+              className="rounded-2xl border border-border-card bg-surface-card p-5 shadow-botanical-sm transition-all hover:border-brand-gold/40 hover:shadow-botanical-md"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle pb-4">
                 <div>
                   <Link
                     href={`/account/orders/${order.id}`}
-                    className="font-semibold text-on-surface hover:text-primary"
+                    className="font-display text-base font-bold text-brand-forest transition-colors hover:text-brand-gold-dark"
                   >
                     #{order.order_number}
                   </Link>
-                  <p className="text-xs text-on-surface-variant">Placed {formatDate(order.created_at)}</p>
+                  <p className="text-xs text-on-surface-variant">Placed on {formatDate(order.created_at)}</p>
                 </div>
                 <OrderStatusBadge status={order.order_status} />
               </div>
 
-              <div className="flex items-center justify-between gap-4 pt-3">
-                <div className="flex -space-x-3">
+              <div className="flex items-center justify-between gap-4 pt-4">
+                <div className="flex -space-x-2.5">
                   {order.items.slice(0, 4).map((item) =>
                     item.product?.main_image ? (
                       <span
                         key={item.id}
-                        className="h-12 w-12 overflow-hidden rounded-full border-2 border-surface bg-surface-container"
+                        className="h-12 w-12 overflow-hidden rounded-full border-2 border-surface-card bg-surface-subtle shadow-sm"
                       >
                         <Image
                           src={item.product.main_image}
@@ -69,10 +72,18 @@ export default async function OrdersPage({ searchParams }: Props) {
                       </span>
                     ) : null,
                   )}
+                  {order.items.length > 4 && (
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-surface-card bg-surface-subtle text-xs font-bold text-brand-forest">
+                      +{order.items.length - 4}
+                    </span>
+                  )}
                 </div>
                 <div className="text-right">
-                  <p className="font-display text-lg font-bold text-brand-forest">₹{formatMoney(order.grand_total)}</p>
-                  <Link href={`/account/orders/${order.id}`} className="text-xs font-medium text-primary hover:underline">
+                  <p className="font-display text-xl font-bold text-brand-forest">₹{formatMoney(order.grand_total)}</p>
+                  <Link
+                    href={`/account/orders/${order.id}`}
+                    className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-forest transition-colors hover:text-brand-gold-dark"
+                  >
                     View Details →
                   </Link>
                 </div>
